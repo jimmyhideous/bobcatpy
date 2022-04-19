@@ -20,7 +20,7 @@ class Bobcat:
 
     def __init__(self,
                  miner_ip='',
-                 get_timeout=5,
+                 get_timeout=60,
                  ):
         """Init the Bobcat object
 
@@ -35,6 +35,10 @@ class Bobcat:
         # Verify connectivity
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         return sock.connect_ex((self.miner_ip, 80))
+
+    def led_status(self):
+        """Retrieve current led status color from the miner"""
+        return self._get("led.json")
 
     def temps(self):
         """Retrieve temperature information from the miner"""
@@ -53,10 +57,12 @@ class Bobcat:
         summary = {}
         try: 
             miner_status = self.miner_status()
+            summary['led'] = led_status['led']
             summary['ota_version'] = miner_status['ota_version']
             summary['image'] = miner_status['miner']['Image']
             summary['animal'] = miner_status['animal']
             summary['state'] = miner_status['miner']['State']
+            summary['nat_type'] = miner_status['p2p_status'][5]
             summary['miner_height'] = int(miner_status['miner_height'])
             summary['blockchain_height'] = self.blockchain_height()
             summary['public_ip'] = miner_status['public_ip']
